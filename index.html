@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scripted Aesthetics — Where Geometry Meets Soul</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090C;--bg2:#0E0E12;--bg3:#141418;--bg4:#1C1C22;
+  --gold:#C9A55A;--gold2:#E8C97A;--gold3:rgba(201,165,90,.2);
+  --orange:#E8823A;--orange2:#FF9B55;--orange3:rgba(232,130,58,.15);
+  --white:#F5F2EC;--white2:#B8B4AC;--white3:#6A6660;
+  --border:rgba(201,165,90,.18);--borderl:rgba(255,255,255,.07);
+  --grad:linear-gradient(135deg,var(--gold) 0%,var(--orange) 100%);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+/* ── CURSOR ── */
+#cd{position:fixed;width:8px;height:8px;background:var(--orange);border-radius:50%;pointer-events:none;z-index:9999;top:0;left:0;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s}
+#cr{position:fixed;width:36px;height:36px;border:1.5px solid rgba(232,130,58,.5);border-radius:50%;pointer-events:none;z-index:9998;top:0;left:0;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s,opacity .3s}
+body.hov #cd{width:10px;height:10px;background:var(--gold)}
+body.hov #cr{width:52px;height:52px;border-color:var(--gold);opacity:1}
+
+/* ── LOADER ── */
+#ldr{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s,visibility 1.2s}
+#ldr.out{opacity:0;visibility:hidden;pointer-events:none}
+.ld-sa{font-family:'Playfair Display',serif;font-size:7rem;font-weight:400;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.1em;opacity:0;animation:ldUp 1s .2s ease forwards}
+.ld-bar{width:0;height:2px;background:var(--grad);margin-top:1.5rem;border-radius:2px;animation:ldBar 1.2s .6s ease forwards}
+.ld-txt{font-family:'Space Grotesk',sans-serif;font-size:.65rem;letter-spacing:.55em;color:var(--white3);margin-top:1.2rem;opacity:0;animation:ldUp .8s 1.1s ease forwards}
+@keyframes ldUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes ldBar{to{width:180px}}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:700;padding:0 5vw;height:76px;display:flex;align-items:center;justify-content:space-between;transition:all .5s}
+nav.stuck{background:rgba(9,9,12,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--borderl)}
+.nav-logo{display:flex;align-items:center;gap:.8rem;text-decoration:none;cursor:none;flex-shrink:0}
+.nav-mark{width:38px;height:38px;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);font-weight:400;flex-shrink:0}
+.nav-name{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:500;letter-spacing:.22em;color:var(--white2);text-transform:uppercase;line-height:1.2}
+.nav-name span{color:var(--gold);display:block;font-size:.55rem;letter-spacing:.3em;font-weight:300}
+.nav-center{display:flex;gap:2.2rem;list-style:none;margin:0 auto}
+.nav-center a{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:400;letter-spacing:.18em;color:var(--white2);text-decoration:none;cursor:none;transition:color .3s;text-transform:uppercase;position:relative}
+.nav-center a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--grad);transition:width .35s;border-radius:2px}
+.nav-center a:hover,.nav-center a.on{color:var(--gold)}
+.nav-center a:hover::after,.nav-center a.on::after{width:100%}
+.nav-btn{font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--bg);background:var(--grad);padding:.65rem 1.6rem;text-decoration:none;cursor:none;transition:opacity .3s;border:none;flex-shrink:0;display:inline-block}
+.nav-btn:hover{opacity:.85}
+.hbg{display:none;flex-direction:column;gap:5px;cursor:none;background:none;border:none;padding:4px}
+.hbg span{width:22px;height:1.5px;background:var(--white2);display:block;transition:all .3s}
+
+/* ── PAGES ── */
+.pg{display:none}
+.pg.active{display:block}
+
+/* ═══ HERO CAROUSEL ═══ */
+.hero{position:relative;height:100vh;min-height:680px;overflow:hidden}
+.slides{position:absolute;inset:0;display:flex;transition:transform .9s cubic-bezier(.77,0,.18,1)}
+.slide{min-width:100%;height:100%;position:relative;overflow:hidden}
+.slide-img{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.08);transition:transform 8s ease}
+.slide.active .slide-img{transform:scale(1)}
+.slide-ov{position:absolute;inset:0;background:linear-gradient(105deg,rgba(9,9,12,.92) 35%,rgba(9,9,12,.3) 100%)}
+.slide-ov2{position:absolute;inset:0;background:linear-gradient(to top,rgba(9,9,12,1) 0%,transparent 55%)}
+.slide-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 5vw 8rem;z-index:2}
+.slide-tag{font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:500;letter-spacing:.5em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:1rem;margin-bottom:1.8rem;opacity:0;transform:translateY(20px);transition:all .8s .2s}
+.slide-tag::before{content:'';width:36px;height:1.5px;background:var(--grad);flex-shrink:0}
+.slide.active .slide-tag{opacity:1;transform:none}
+.slide-h1{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(3.2rem,7.5vw,8.5rem);line-height:.93;color:var(--white);margin-bottom:2rem;opacity:0;transform:translateY(30px);transition:all .9s .4s}
+.slide-h1 em{font-style:italic;color:var(--gold);display:block}
+.slide.active .slide-h1{opacity:1;transform:none}
+.slide-p{font-family:'Inter',sans-serif;font-size:1.05rem;color:var(--white2);line-height:1.85;max-width:500px;margin-bottom:2.8rem;opacity:0;transform:translateY(20px);transition:all .8s .6s}
+.slide.active .slide-p{opacity:1;transform:none}
+.slide-btns{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;transform:translateY(16px);transition:all .7s .8s}
+.slide.active .slide-btns{opacity:1;transform:none}
+.btn-grad{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--bg);background:var(--grad);padding:1rem 2.4rem;text-decoration:none;cursor:none;transition:opacity .3s;display:inline-flex;align-items:center;gap:.5rem;border:none}
+.btn-grad:hover{opacity:.85}
+.btn-outline{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:var(--white);border:1px solid rgba(255,255,255,.25);padding:1rem 2.4rem;text-decoration:none;cursor:none;transition:all .3s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.hero-stats{position:absolute;right:5vw;bottom:8rem;z-index:3;display:flex;flex-direction:column;gap:2rem}
+.hs{text-align:right}
+.hs-n{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:400;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.hs-l{font-family:'Space Grotesk',sans-serif;font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;color:var(--white3);margin-top:.2rem}
+.hero-dots{position:absolute;bottom:3rem;left:5vw;z-index:3;display:flex;gap:.6rem}
+.dot{width:28px;height:2px;background:rgba(255,255,255,.2);cursor:none;transition:all .4s;border-radius:2px}
+.dot.on{background:var(--grad);width:52px}
+.hero-arrows{position:absolute;bottom:2.5rem;right:5vw;z-index:3;display:flex;gap:.6rem}
+.arr{width:42px;height:42px;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;cursor:none;transition:all .3s;color:var(--white2)}
+.arr:hover{border-color:var(--gold);color:var(--gold)}
+.arr svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5}
+.scroll-ind{position:absolute;left:5vw;bottom:0;width:1px;height:80px;overflow:hidden;z-index:3}
+.scroll-ind::after{content:'';position:absolute;top:-100%;inset:0;background:linear-gradient(var(--orange),var(--gold),transparent);animation:scr 2s 3s ease infinite}
+@keyframes scr{0%{top:-100%}100%{top:100%}}
+
+/* ═══ MARQUEE ═══ */
+.mq{overflow:hidden;border-top:1px solid var(--borderl);border-bottom:1px solid var(--borderl);padding:1.1rem 0;background:var(--bg2)}
+.mq-track{display:flex;white-space:nowrap;animation:mqa 32s linear infinite}
+.mq-item{font-family:'Space Grotesk',sans-serif;font-size:.68rem;font-weight:400;letter-spacing:.4em;text-transform:uppercase;padding-right:2.5rem;flex-shrink:0}
+.mq-item.gold{color:var(--gold)}
+.mq-item.ora{color:var(--orange)}
+.mq-item.wht{color:var(--white2)}
+.mq-sep{color:var(--white3);padding-right:2.5rem;flex-shrink:0}
+@keyframes mqa{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ═══ SECTION BASE ═══ */
+.sec{padding:8rem 5vw}
+.stag{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.5em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+.stag::before{content:'';width:28px;height:1.5px;background:var(--grad);flex-shrink:0}
+.sh{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(2.2rem,4.5vw,4.8rem);line-height:1;color:var(--white);margin-bottom:1rem}
+.sh em{font-style:italic;color:var(--gold)}
+.sp{font-size:1.02rem;color:var(--white2);line-height:1.9;max-width:560px}
+
+/* ═══ SERVICES ═══ */
+.srv-sec{padding:8rem 5vw;background:var(--bg2)}
+.srv-top{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:5rem}
+.srv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--borderl)}
+.sc{background:var(--bg2);padding:2.8rem 2rem;position:relative;overflow:hidden;transition:background .4s}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:transparent;transition:background .4s}
+.sc:hover{background:var(--bg3)}
+.sc:hover::after{background:var(--grad)}
+.sc-icon-wrap{width:52px;height:52px;border-radius:4px;display:flex;align-items:center;justify-content:center;margin-bottom:2rem;position:relative}
+.sc:nth-child(1) .sc-icon-wrap{background:rgba(232,130,58,.12)}
+.sc:nth-child(2) .sc-icon-wrap{background:rgba(201,165,90,.12)}
+.sc:nth-child(3) .sc-icon-wrap{background:rgba(99,179,237,.1)}
+.sc:nth-child(4) .sc-icon-wrap{background:rgba(154,205,90,.1)}
+.sc-icon{width:26px;height:26px}
+.sc-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:400;color:var(--white);margin-bottom:.8rem}
+.sc-desc{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--white2);line-height:1.8}
+.sc-link{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-top:1.5rem;display:inline-block;opacity:0;transform:translateY(6px);transition:all .3s}
+.sc:hover .sc-link{opacity:1;transform:none}
+
+/* ═══ HOW WE WORK ═══ */
+.hww{padding:8rem 5vw;background:var(--bg)}
+.hww-top{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;margin-bottom:5rem}
+.hww-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem}
+.hwc{background:var(--bg2);padding:2.8rem 2rem;border-radius:2px;position:relative;overflow:hidden;transition:transform .4s,box-shadow .4s;border-top:2.5px solid transparent}
+.hwc:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.hwc:nth-child(1){border-top-color:var(--orange)}
+.hwc:nth-child(2){border-top-color:var(--gold)}
+.hwc:nth-child(3){border-top-color:#6BB5FF}
+.hwc:nth-child(4){border-top-color:#7EE8A2}
+.hwc-num{font-family:'Playfair Display',serif;font-size:4.5rem;font-weight:400;color:rgba(255,255,255,.04);position:absolute;top:.2rem;right:1rem;line-height:1;pointer-events:none}
+.hwc-badge{font-family:'Space Grotesk',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;margin-bottom:1.5rem;display:inline-block;padding:.3rem .8rem}
+.hwc:nth-child(1) .hwc-badge{background:rgba(232,130,58,.15);color:var(--orange)}
+.hwc:nth-child(2) .hwc-badge{background:rgba(201,165,90,.15);color:var(--gold)}
+.hwc:nth-child(3) .hwc-badge{background:rgba(107,181,255,.1);color:#6BB5FF}
+.hwc:nth-child(4) .hwc-badge{background:rgba(126,232,162,.1);color:#7EE8A2}
+.hwc-icon{width:44px;height:44px;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center}
+.hwc-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:400;color:var(--white);margin-bottom:.9rem}
+.hwc-desc{font-family:'Inter',sans-serif;font-size:.84rem;color:var(--white2);line-height:1.82}
+
+/* ═══ STATS ═══ */
+.stats-sec{padding:7rem 5vw;background:var(--bg3);border-top:1px solid var(--borderl);border-bottom:1px solid var(--borderl)}
+.stats-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.stat-item{padding:3rem 2.5rem;text-align:center;border-right:1px solid var(--borderl);position:relative}
+.stat-item:last-child{border-right:none}
+.stat-item::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--grad);transition:width .5s ease}
+.stat-item.show::before{width:60px}
+.stat-num{font-family:'Playfair Display',serif;font-size:5.5rem;font-weight:400;line-height:1;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-suf{font-family:'Playfair Display',serif;font-size:3rem;font-weight:400;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.4em;text-transform:uppercase;color:var(--white3);margin-top:.8rem}
+.stat-desc{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--white3);margin-top:.4rem}
+
+/* ═══ PROJECTS ═══ */
+.proj-sec{padding:8rem 5vw;background:var(--bg)}
+.proj-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4rem;flex-wrap:wrap;gap:2rem}
+.filter-row{display:flex;gap:.3rem;flex-wrap:wrap}
+.fb{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--white3);padding:.55rem 1.3rem;border:1px solid transparent;background:transparent;cursor:none;transition:all .3s}
+.fb:hover{color:var(--white2)}
+.fb.on{color:var(--gold);border-color:var(--border)}
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.pc{position:relative;overflow:hidden;cursor:none}
+.pc-img{position:relative;overflow:hidden}
+.pc-img img{width:100%;height:360px;object-fit:cover;filter:brightness(.75);transition:transform .7s ease,filter .5s}
+.pc:hover .pc-img img{transform:scale(1.07);filter:brightness(.45)}
+.pc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(9,9,12,.98) 0%,rgba(9,9,12,.15) 55%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:1.8rem}
+.pc-hover{transform:translateY(14px);opacity:0;transition:all .45s}
+.pc:hover .pc-hover{transform:none;opacity:1}
+.pc-cat{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--orange);margin-bottom:.4rem}
+.pc-name{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:400;color:var(--white);line-height:1.1}
+.pc-loc{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--white2);margin-top:.3rem}
+.pc-arr{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-top:.9rem}
+.pc-bar{padding:1.2rem 0;border-bottom:1px solid var(--borderl)}
+
+/* ═══ ABOUT SPLIT ═══ */
+.about-split{display:grid;grid-template-columns:1fr 1fr;min-height:640px}
+.ab-img{position:relative;overflow:hidden}
+.ab-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.6);transition:transform 6s ease}
+.ab-img:hover img{transform:scale(1.04)}
+.ab-img-ov{position:absolute;inset:0;background:linear-gradient(to right,transparent 55%,var(--bg3))}
+.ab-text{background:var(--bg3);padding:6rem 5rem;display:flex;flex-direction:column;justify-content:center}
+.ab-stats{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:3.5rem;padding-top:3rem;border-top:1px solid var(--borderl)}
+.ast{padding:1.8rem 1.5rem 1.8rem 0;border-top:none}
+.ast-n{font-family:'Playfair Display',serif;font-size:3.8rem;font-weight:400;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.ast-l{font-family:'Space Grotesk',sans-serif;font-size:.55rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--white3);margin-top:.35rem}
+
+/* ═══ QUOTE ═══ */
+.quote-sec{padding:7rem 5vw;background:var(--bg2);border-top:1px solid var(--borderl);border-bottom:1px solid var(--borderl);text-align:center;position:relative;overflow:hidden}
+.quote-sec::before{content:'"';font-family:'Playfair Display',serif;font-size:22rem;font-weight:400;color:rgba(201,165,90,.04);position:absolute;top:-5rem;left:2vw;line-height:1;pointer-events:none}
+.q-txt{font-family:'Libre Baskerville',serif;font-style:italic;font-size:clamp(1.4rem,2.8vw,2.5rem);font-weight:400;color:var(--white);line-height:1.55;max-width:880px;margin:0 auto;position:relative;z-index:1}
+.q-line{width:56px;height:2px;background:var(--grad);margin:2rem auto;border-radius:2px}
+.q-attr{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.4em;text-transform:uppercase;color:var(--orange)}
+
+/* ═══ ABOUT PAGE ═══ */
+.ab-hero{position:relative;height:65vh;min-height:500px;overflow:hidden;display:flex;align-items:flex-end}
+.ab-hero-img{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1600&q=80');background-size:cover;background-position:center;filter:brightness(.45)}
+.ab-hero-ov{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 60%)}
+.ab-hero-content{position:relative;z-index:2;padding:0 5vw 5rem}
+
+/* ═══ TEAM ═══ */
+.team-sec{padding:8rem 5vw;background:var(--bg)}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:4.5rem}
+.tc{position:relative;overflow:hidden;cursor:none}
+.tc-img{aspect-ratio:3/4;overflow:hidden;position:relative}
+.tc-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(.8);transition:all .7s}
+.tc:hover .tc-img img{filter:brightness(.45) saturate(.6);transform:scale(1.04)}
+.tc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(9,9,12,1) 0%,rgba(9,9,12,.2) 55%,transparent 100%)}
+.tc-info{position:absolute;bottom:0;left:0;right:0;padding:2.5rem}
+.tc-name{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:400;color:var(--white);line-height:1.1}
+.tc-role{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--orange);margin-top:.4rem}
+.tc-bio{font-family:'Inter',sans-serif;font-size:.83rem;color:var(--white2);line-height:1.82;margin-top:1rem;max-height:0;overflow:hidden;transition:max-height .6s ease}
+.tc:hover .tc-bio{max-height:220px}
+
+/* ═══ SA LAB ═══ */
+.lab-hero-band{padding:9rem 5vw 5rem;background:var(--bg)}
+.lab-h1{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(4.5rem,11vw,12rem);line-height:.88;color:var(--white)}
+.lab-h1 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.lab-sub{font-family:'Inter',sans-serif;font-size:1.05rem;color:var(--white2);line-height:1.9;max-width:550px;margin-top:2rem}
+.lab-list{padding:2rem 5vw 8rem}
+.litem{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--borderl);overflow:hidden}
+.litem:nth-child(even) .li-img{order:2}
+.litem:nth-child(even) .li-txt{order:1}
+.li-img{position:relative;overflow:hidden;min-height:500px}
+.li-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.6);transition:all .8s}
+.litem:hover .li-img img{transform:scale(1.04);filter:brightness(.45)}
+.li-num{position:absolute;top:2rem;left:2rem;font-family:'Playfair Display',serif;font-size:5rem;font-weight:400;color:rgba(255,255,255,.1);line-height:1}
+.li-tag-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .5s}
+.litem:hover .li-tag-bar{transform:scaleX(1)}
+.li-txt{background:var(--bg2);padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center}
+.li-cat{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.38em;text-transform:uppercase;color:var(--orange);margin-bottom:1rem}
+.li-title{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:400;color:var(--white);line-height:1.05;margin-bottom:1.5rem}
+.li-desc{font-family:'Inter',sans-serif;font-size:.9rem;color:var(--white2);line-height:1.92}
+.li-meta{display:flex;gap:3rem;margin-top:2.2rem;padding-top:2rem;border-top:1px solid var(--borderl);flex-wrap:wrap}
+.lm strong{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--white);font-weight:500;display:block}
+.lm span{font-family:'Space Grotesk',sans-serif;font-size:.55rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;color:var(--white3)}
+
+/* ═══ CONTACT ═══ */
+.ct-hero{padding:9rem 5vw 4rem}
+.ct-h1{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(3rem,8vw,10rem);line-height:.9;color:var(--white)}
+.ct-h1 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.ct-body{display:grid;grid-template-columns:1fr 1.3fr;gap:7rem;padding:3rem 5vw 8rem}
+.ct-lbl{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--orange);margin-bottom:.5rem}
+.ct-val{font-family:'Inter',sans-serif;font-size:.9rem;color:var(--white2);line-height:1.8;margin-bottom:2.2rem}
+.ct-val a{color:var(--white2);text-decoration:none;cursor:none;transition:color .3s}
+.ct-val a:hover{color:var(--gold)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.fg{margin-bottom:1.8rem}
+.fl{font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--white3);display:block;margin-bottom:.55rem}
+.fi{width:100%;background:transparent;border:none;border-bottom:1px solid var(--borderl);padding:.9rem 0;color:var(--white);font-family:'Inter',sans-serif;font-size:.92rem;font-weight:300;outline:none;transition:border-color .3s;cursor:text}
+.fi:focus{border-color:var(--orange)}
+.fi::placeholder{color:var(--white3)}
+select.fi{-webkit-appearance:none;appearance:none}
+textarea.fi{resize:none;height:130px}
+.btn-submit{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--bg);background:var(--grad);border:none;padding:1.1rem 3rem;cursor:none;transition:opacity .3s;margin-top:.5rem;display:inline-block}
+.btn-submit:hover{opacity:.85}
+.form-ok{display:none;font-family:'Playfair Display',serif;font-style:italic;font-size:1.6rem;color:var(--gold);padding-top:2.5rem;line-height:1.5}
+
+/* ═══ FOOTER ═══ */
+footer{background:var(--bg2);border-top:1px solid var(--borderl);padding:5rem 5vw 2rem}
+.ft{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:4rem;padding-bottom:4rem;border-bottom:1px solid var(--borderl)}
+.fb-logo{font-family:'Playfair Display',serif;font-weight:400;font-size:1.5rem;color:var(--white);margin-bottom:1rem}
+.fb-logo b{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:600}
+.fb-p{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--white3);line-height:1.85;max-width:260px;margin-bottom:1.5rem}
+.ft-col h4{font-family:'Space Grotesk',sans-serif;font-size:.6rem;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--orange);margin-bottom:1.6rem}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:.9rem}
+.ft-col ul a{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--white3);text-decoration:none;cursor:none;transition:color .3s}
+.ft-col ul a:hover{color:var(--gold)}
+.fb-btm{display:flex;justify-content:space-between;align-items:center;padding-top:2rem;flex-wrap:wrap;gap:1rem}
+.fb-copy{font-family:'Inter',sans-serif;font-size:.75rem;color:var(--white3)}
+.fb-right{font-family:'Libre Baskerville',serif;font-style:italic;font-size:.9rem;color:var(--white3)}
+
+/* ═══ REVEAL ═══ */
+.rev{opacity:0;transform:translateY(26px);transition:opacity .85s ease,transform .85s ease}
+.rev.show{opacity:1;transform:none}
+.rd1{transition-delay:.1s}.rd2{transition-delay:.2s}.rd3{transition-delay:.3s}.rd4{transition-delay:.4s}
+
+/* ═══ MOBILE ═══ */
+@media(max-width:960px){
+  .nav-center,.nav-btn{display:none}
+  .hbg{display:flex}
+  .nav-center.open{display:flex;flex-direction:column;position:fixed;inset:0;top:76px;background:rgba(9,9,12,.98);padding:3rem 5vw;gap:1.8rem;z-index:600;align-items:flex-start}
+  .nav-center.open a{font-size:1.2rem;letter-spacing:.08em}
+  .srv-top,.hww-top,.srv-grid,.hww-grid,.proj-grid,.team-grid,.ct-body,.ft,.ab-stats,.litem,.about-split{grid-template-columns:1fr}
+  .stats-inner{grid-template-columns:1fr 1fr}
+  .stat-item{border-right:none;border-bottom:1px solid var(--borderl)}
+  .hero-stats,.hero-arrows{display:none}
+  .ab-img{height:350px}
+  .ab-text{padding:4rem 5vw}
+  .li-txt{padding:3rem 5vw}
+  .litem:nth-child(even) .li-img,.litem:nth-child(even) .li-txt{order:unset}
+  .form-row{grid-template-columns:1fr}
+  .ft{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .proj-grid,.hww-grid,.srv-grid{grid-template-columns:1fr}
+  .stats-inner{grid-template-columns:1fr}
+  .ft{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="cd"></div>
+<div id="cr"></div>
+
+<!-- LOADER -->
+<div id="ldr">
+  <div class="ld-sa">SA</div>
+  <div class="ld-bar"></div>
+  <div class="ld-txt">Scripted Aesthetics · Est. 2019</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#" onclick="go('home');return false">
+    <div class="nav-mark">SA</div>
+    <div class="nav-name">SCRIPTED AESTHETICS<span>Parametric · Architecture · Interiors</span></div>
+  </a>
+  <ul class="nav-center" id="navLinks">
+    <li><a href="#" onclick="go('home');return false" data-pg="home">Home</a></li>
+    <li><a href="#" onclick="go('projects');return false" data-pg="projects">Projects</a></li>
+    <li><a href="#" onclick="go('about');return false" data-pg="about">About</a></li>
+    <li><a href="#" onclick="go('salab');return false" data-pg="salab">SA Lab</a></li>
+    <li><a href="#" onclick="go('contact');return false" data-pg="contact">Contact</a></li>
+  </ul>
+  <a class="nav-btn" href="#" onclick="go('contact');return false">Request Consultation</a>
+  <button class="hbg" id="hbg" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ═══════════════════ HOME ═══════════════════ -->
+<div id="pg-home" class="pg active">
+
+<!-- HERO CAROUSEL -->
+<section class="hero">
+  <div class="slides" id="slides">
+    <div class="slide active">
+      <div class="slide-img" style="background-image:url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80')"></div>
+      <div class="slide-ov"></div><div class="slide-ov2"></div>
+      <div class="slide-content">
+        <div class="slide-tag">Studio · Est. 2019 · Chennai, India</div>
+        <h1 class="slide-h1">Where Geometry<br><em>Meets Soul</em></h1>
+        <p class="slide-p">An innovative architecture firm specialising in parametric design, turnkey architecture and stylised interiors — where art, science and technology converge.</p>
+        <div class="slide-btns">
+          <a class="btn-grad" href="#" onclick="go('projects');return false">Explore Projects →</a>
+          <a class="btn-outline" href="#" onclick="go('about');return false">Our Studio</a>
+        </div>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-img" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=80')"></div>
+      <div class="slide-ov"></div><div class="slide-ov2"></div>
+      <div class="slide-content">
+        <div class="slide-tag">Luxury Residences · Interiors</div>
+        <h1 class="slide-h1">Spaces Crafted<br><em>With Intention</em></h1>
+        <p class="slide-p">From penthouses to villas — we create interiors that tell stories. Every material, every light, every detail selected with singular purpose.</p>
+        <div class="slide-btns">
+          <a class="btn-grad" href="#" onclick="go('projects');return false">View Portfolio →</a>
+          <a class="btn-outline" href="#" onclick="go('contact');return false">Start a Project</a>
+        </div>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-img" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1600&q=80')"></div>
+      <div class="slide-ov"></div><div class="slide-ov2"></div>
+      <div class="slide-content">
+        <div class="slide-tag">Parametric · Computational Design</div>
+        <h1 class="slide-h1">Beyond the<br><em>Conventional</em></h1>
+        <p class="slide-p">Pushing the boundaries of architecture through algorithmic thinking, digital fabrication and a relentless pursuit of the extraordinary.</p>
+        <div class="slide-btns">
+          <a class="btn-grad" href="#" onclick="go('salab');return false">Explore SA Lab →</a>
+          <a class="btn-outline" href="#" onclick="go('contact');return false">Collaborate With Us</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-stats" id="heroStats">
+    <div class="hs"><div class="hs-n">07+</div><div class="hs-l">Years</div></div>
+    <div class="hs"><div class="hs-n">40+</div><div class="hs-l">Projects</div></div>
+    <div class="hs"><div class="hs-n">100%</div><div class="hs-l">Client Focus</div></div>
+  </div>
+  <div class="hero-dots" id="heroDots">
+    <div class="dot on" onclick="goSlide(0)"></div>
+    <div class="dot" onclick="goSlide(1)"></div>
+    <div class="dot" onclick="goSlide(2)"></div>
+  </div>
+  <div class="hero-arrows">
+    <div class="arr" onclick="prevSlide()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div class="arr" onclick="nextSlide()"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div>
+  <div class="scroll-ind"></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq">
+  <div class="mq-track">
+    <span class="mq-item gold">Parametric Design</span><span class="mq-sep">✦</span>
+    <span class="mq-item wht">Turnkey Architecture</span><span class="mq-sep">✦</span>
+    <span class="mq-item ora">Stylised Interiors</span><span class="mq-sep">✦</span>
+    <span class="mq-item wht">Computational Design</span><span class="mq-sep">✦</span>
+    <span class="mq-item gold">BIM Technology</span><span class="mq-sep">✦</span>
+    <span class="mq-item ora">Sustainable Architecture</span><span class="mq-sep">✦</span>
+    <span class="mq-item wht">Digital Fabrication</span><span class="mq-sep">✦</span>
+    <span class="mq-item gold">Parametric Design</span><span class="mq-sep">✦</span>
+    <span class="mq-item wht">Turnkey Architecture</span><span class="mq-sep">✦</span>
+    <span class="mq-item ora">Stylised Interiors</span><span class="mq-sep">✦</span>
+    <span class="mq-item wht">Computational Design</span><span class="mq-sep">✦</span>
+    <span class="mq-item gold">BIM Technology</span><span class="mq-sep">✦</span>
+    <span class="mq-item ora">Sustainable Architecture</span><span class="mq-sep">✦</span>
+    <span class="mq-item wht">Digital Fabrication</span><span class="mq-sep">✦</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="srv-sec">
+  <div class="srv-top rev">
+    <div>
+      <div class="stag">What We Do</div>
+      <h2 class="sh">Our <em>Services</em></h2>
+    </div>
+    <p class="sp">We combine advanced computational tools with a deeply human design philosophy — creating spaces that are structurally precise, aesthetically extraordinary, and built to endure.</p>
+  </div>
+  <div class="srv-grid">
+    <div class="sc rev rd1">
+      <div class="sc-icon-wrap">
+        <svg class="sc-icon" viewBox="0 0 40 40" fill="none"><path d="M5 30 L20 8 L35 30 Z" stroke="#E8823A" stroke-width="1.8"/><rect x="15" y="22" width="10" height="8" stroke="#E8823A" stroke-width="1.5"/><line x1="5" y1="30" x2="35" y2="30" stroke="#E8823A" stroke-width="1.5"/></svg>
+      </div>
+      <div class="sc-title">Residential Design</div>
+      <p class="sc-desc">Luxury homes, villas and penthouses designed with bespoke spatial arrangements, premium material finishes and technology-driven comfort.</p>
+      <div class="sc-link">Learn More →</div>
+    </div>
+    <div class="sc rev rd2">
+      <div class="sc-icon-wrap">
+        <svg class="sc-icon" viewBox="0 0 40 40" fill="none"><rect x="5" y="12" width="30" height="22" stroke="#C9A55A" stroke-width="1.8"/><rect x="12" y="12" width="16" height="8" stroke="#C9A55A" stroke-width="1.5"/><line x1="5" y1="20" x2="35" y2="20" stroke="#C9A55A" stroke-width="1" opacity=".5"/><rect x="16" y="26" width="8" height="8" stroke="#C9A55A" stroke-width="1.5"/></svg>
+      </div>
+      <div class="sc-title">Commercial Interiors</div>
+      <p class="sc-desc">Offices, clinics, restaurants and retail spaces designed to reflect brand identity while maximising functionality and elevating client experience.</p>
+      <div class="sc-link">Learn More →</div>
+    </div>
+    <div class="sc rev rd3">
+      <div class="sc-icon-wrap">
+        <svg class="sc-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#6BB5FF" stroke-width="1.8"/><circle cx="20" cy="20" r="8" stroke="#6BB5FF" stroke-width="1.3" opacity=".7"/><circle cx="20" cy="20" r="3" fill="#6BB5FF" opacity=".8"/><line x1="6" y1="20" x2="34" y2="20" stroke="#6BB5FF" stroke-width="1" opacity=".4"/><line x1="20" y1="6" x2="20" y2="34" stroke="#6BB5FF" stroke-width="1" opacity=".4"/></svg>
+      </div>
+      <div class="sc-title">Parametric Design</div>
+      <p class="sc-desc">Cutting-edge computational architecture — algorithmic façades, generative structures and precision-fabricated installations beyond convention.</p>
+      <div class="sc-link">Learn More →</div>
+    </div>
+    <div class="sc rev rd4">
+      <div class="sc-icon-wrap">
+        <svg class="sc-icon" viewBox="0 0 40 40" fill="none"><polygon points="20,5 35,35 5,35" stroke="#7EE8A2" stroke-width="1.8"/><polyline points="20,5 20,35" stroke="#7EE8A2" stroke-width="1" opacity=".5"/><polyline points="5,35 35,35" stroke="#7EE8A2" stroke-width="1.8"/><circle cx="20" cy="22" r="5" stroke="#7EE8A2" stroke-width="1.3"/></svg>
+      </div>
+      <div class="sc-title">Turnkey Execution</div>
+      <p class="sc-desc">End-to-end project delivery from concept to handover — design, detailing, fabrication coordination and site supervision under one roof.</p>
+      <div class="sc-link">Learn More →</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW WE WORK -->
+<section class="hww">
+  <div class="hww-top rev">
+    <div>
+      <div class="stag">Our Process</div>
+      <h2 class="sh">How We <em>Work</em></h2>
+    </div>
+    <p class="sp">Every project follows a rigorous, collaborative process — from the very first conversation to the final walk-through. You're involved at every stage, every decision.</p>
+  </div>
+  <div class="hww-grid">
+    <div class="hwc rev rd1">
+      <div class="hwc-num">01</div>
+      <div class="hwc-badge">Step 01</div>
+      <div class="hwc-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" rx="2" stroke="#E8823A" stroke-width="1.8"/><line x1="12" y1="14" x2="28" y2="14" stroke="#E8823A" stroke-width="1.5"/><line x1="12" y1="20" x2="22" y2="20" stroke="#E8823A" stroke-width="1.5"/><line x1="12" y1="26" x2="20" y2="26" stroke="#E8823A" stroke-width="1.5"/><circle cx="28" cy="28" r="4" fill="#E8823A" opacity=".8"/></svg>
+      </div>
+      <div class="hwc-title">Brief & Discovery</div>
+      <p class="hwc-desc">A deep-dive consultation to understand your vision, lifestyle, site context and aspirations. No templates. No assumptions. Only listening.</p>
+    </div>
+    <div class="hwc rev rd2">
+      <div class="hwc-num">02</div>
+      <div class="hwc-badge">Step 02</div>
+      <div class="hwc-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><polygon points="20,5 35,34 5,34" stroke="#C9A55A" stroke-width="1.8"/><line x1="20" y1="5" x2="20" y2="34" stroke="#C9A55A" stroke-width="1" opacity=".5"/><line x1="12" y1="24" x2="28" y2="24" stroke="#C9A55A" stroke-width="1" opacity=".5"/></svg>
+      </div>
+      <div class="hwc-title">Concept Design</div>
+      <p class="hwc-desc">Multiple spatial concepts developed using parametric tools and hand sketches — finding a direction that resonates deeply with your vision.</p>
+    </div>
+    <div class="hwc rev rd3">
+      <div class="hwc-num">03</div>
+      <div class="hwc-badge">Step 03</div>
+      <div class="hwc-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#6BB5FF" stroke-width="1.8"/><circle cx="20" cy="20" r="7" stroke="#6BB5FF" stroke-width="1.3" opacity=".6"/><line x1="20" y1="6" x2="20" y2="14" stroke="#6BB5FF" stroke-width="2"/><line x1="20" y1="26" x2="20" y2="34" stroke="#6BB5FF" stroke-width="2"/><line x1="6" y1="20" x2="14" y2="20" stroke="#6BB5FF" stroke-width="2"/><line x1="26" y1="20" x2="34" y2="20" stroke="#6BB5FF" stroke-width="2"/></svg>
+      </div>
+      <div class="hwc-title">Detail Development</div>
+      <p class="hwc-desc">Every element refined — materials, joinery, lighting, fabrication details — until the design is complete and precise in every dimension.</p>
+    </div>
+    <div class="hwc rev rd4">
+      <div class="hwc-num">04</div>
+      <div class="hwc-badge">Step 04</div>
+      <div class="hwc-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#7EE8A2" stroke-width="1.8"/><polyline points="13,20 18,26 28,14" stroke="#7EE8A2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="hwc-title">Execution & Handover</div>
+      <p class="hwc-desc">We manage the complete build — coordinating contractors, overseeing quality on site, and ensuring flawless delivery of your final space.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ANIMATED STATS -->
+<section class="stats-sec">
+  <div class="stats-inner">
+    <div class="stat-item rev rd1">
+      <div><span class="stat-num" data-target="7" data-suffix="+">0</span><span class="stat-suf" style="display:none">+</span></div>
+      <div class="stat-label">Years of Excellence</div>
+      <div class="stat-desc">Est. 2019 · Chennai</div>
+    </div>
+    <div class="stat-item rev rd2">
+      <div><span class="stat-num" data-target="40" data-suffix="+">0</span><span class="stat-suf" style="display:none">+</span></div>
+      <div class="stat-label">Projects Delivered</div>
+      <div class="stat-desc">Across South India</div>
+    </div>
+    <div class="stat-item rev rd3">
+      <div><span class="stat-num" data-target="2">0</span></div>
+      <div class="stat-label">Design Principals</div>
+      <div class="stat-desc">BIM · Computational</div>
+    </div>
+    <div class="stat-item rev rd4">
+      <div><span class="stat-num" data-target="100" data-suffix="%">0</span><span class="stat-suf" style="display:none">%</span></div>
+      <div class="stat-label">Client Satisfaction</div>
+      <div class="stat-desc">Every. Single. Time.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PROJECTS -->
+<section class="proj-sec">
+  <div class="proj-top rev">
+    <div>
+      <div class="stag">Selected Work</div>
+      <h2 class="sh">Featured <em>Projects</em></h2>
+    </div>
+    <a class="btn-outline" href="#" onclick="go('projects');return false">View All Projects →</a>
+  </div>
+  <div class="proj-grid">
+    <div class="pc rev rd1">
+      <div class="pc-img">
+        <img src="https://images.unsplash.com/photo-1631679706909-1844bbd07221?w=800&q=80" alt="Tiny Urban Residence" loading="lazy">
+        <div class="pc-ov"><div class="pc-hover"><div class="pc-cat">Residential Interiors</div><div class="pc-name">Tiny Urban Residence</div><div class="pc-loc">MKB Nagar, Chennai</div><div class="pc-arr">View Project →</div></div></div>
+      </div>
+      <div class="pc-bar"><div class="pc-cat">Residential Interiors</div><div class="pc-name" style="font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--white);margin-top:.3rem">Tiny Urban Residence</div></div>
+    </div>
+    <div class="pc rev rd2">
+      <div class="pc-img">
+        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80" alt="Flavours Restaurant" loading="lazy">
+        <div class="pc-ov"><div class="pc-hover"><div class="pc-cat">Hospitality</div><div class="pc-name">Flavours Restaurant</div><div class="pc-loc">Kodaikanal</div><div class="pc-arr">View Project →</div></div></div>
+      </div>
+      <div class="pc-bar"><div class="pc-cat">Hospitality</div><div class="pc-name" style="font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--white);margin-top:.3rem">Flavours Restaurant</div></div>
+    </div>
+    <div class="pc rev rd3">
+      <div class="pc-img">
+        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80" alt="Penthouse" loading="lazy">
+        <div class="pc-ov"><div class="pc-hover"><div class="pc-cat">Luxury Residence</div><div class="pc-name">The Penthouse</div><div class="pc-loc">Chennai, 28th Floor</div><div class="pc-arr">View Project →</div></div></div>
+      </div>
+      <div class="pc-bar"><div class="pc-cat">Luxury Residence</div><div class="pc-name" style="font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--white);margin-top:.3rem">The Penthouse</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT STRIP -->
+<div class="about-split">
+  <div class="ab-img">
+    <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=900&q=80" alt="Studio">
+    <div class="ab-img-ov"></div>
+  </div>
+  <div class="ab-text rev">
+    <div class="stag">About the Studio</div>
+    <h2 class="sh">Young. Zealous.<br><em>Architectural.</em></h2>
+    <p style="font-size:1rem;color:var(--white2);line-height:1.9;margin-top:1.5rem">STUDIO SCRIPTED AESTHETICS is an innovative architecture firm specialising in parametric design, turnkey architecture and stylised interiors. We are a team of young, zealous architects with a deep penchant for art, science and technology.</p>
+    <p style="font-size:1rem;color:var(--white2);line-height:1.9;margin-top:1rem">Our design process involves relentless exploration along the lines of geometry, material, parametric design and computational architecture.</p>
+    <a class="btn-grad" style="margin-top:2.5rem;display:inline-flex;align-items:center;gap:.5rem;text-decoration:none" href="#" onclick="go('about');return false">Meet The Team →</a>
+    <div class="ab-stats">
+      <div class="ast"><div class="ast-n">07+</div><div class="ast-l">Years of Excellence</div></div>
+      <div class="ast"><div class="ast-n">40+</div><div class="ast-l">Projects Delivered</div></div>
+      <div class="ast"><div class="ast-n">02</div><div class="ast-l">Design Principals</div></div>
+      <div class="ast"><div class="ast-n">100%</div><div class="ast-l">Client Satisfaction</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="quote-sec rev">
+  <p class="q-txt">"On the path of innovative design, sustainable technological experimentation is our driving approach and client satisfaction, our ultimate terminus."</p>
+  <div class="q-line"></div>
+  <p class="q-attr">— Studio Scripted Aesthetics · Chennai</p>
+</div>
+
+<footer>
+  <div class="ft">
+    <div><div class="fb-logo"><b>S</b>cripted Aesthetics</div><p class="fb-p">An innovative architecture firm specialising in parametric design, turnkey architecture and stylised interiors. Est. 2019, Chennai, India.</p><a class="btn-grad" style="font-size:.62rem;padding:.7rem 1.4rem;text-decoration:none;display:inline-block" href="#" onclick="go('contact');return false">Request Consultation</a></div>
+    <div class="ft-col"><h4>Navigate</h4><ul><li><a href="#" onclick="go('home');return false">Home</a></li><li><a href="#" onclick="go('projects');return false">Projects</a></li><li><a href="#" onclick="go('about');return false">About</a></li><li><a href="#" onclick="go('salab');return false">SA Lab</a></li><li><a href="#" onclick="go('contact');return false">Contact</a></li></ul></div>
+    <div class="ft-col"><h4>Services</h4><ul><li><a href="#">Residential Design</a></li><li><a href="#">Commercial Interiors</a></li><li><a href="#">Parametric Design</a></li><li><a href="#">Turnkey Execution</a></li><li><a href="#">BIM Consulting</a></li></ul></div>
+    <div class="ft-col"><h4>Contact</h4><ul><li><a href="tel:+918072669376">+91 80726 69376</a></li><li><a href="tel:+917010735936">+91 70107 35936</a></li><li><a href="mailto:projects.sads@gmail.com">projects.sads@gmail.com</a></li><li><a href="#">Triplicane, Chennai 600005</a></li></ul></div>
+  </div>
+  <div class="fb-btm"><div class="fb-copy">© 2024 Scripted Aesthetics. All rights reserved.</div><div class="fb-right">Crafted with precision.</div></div>
+</footer>
+</div>
+
+<!-- ═══════════════════ PROJECTS ═══════════════════ -->
+<div id="pg-projects" class="pg">
+  <div style="height:76px;background:var(--bg)"></div>
+  <section class="proj-sec" style="padding-top:5rem">
+    <div class="proj-top rev">
+      <div><div class="stag">Portfolio</div><h2 class="sh">All <em>Projects</em></h2></div>
+      <div class="filter-row">
+        <button class="fb on" onclick="filterP('all',this)">All</button>
+        <button class="fb" onclick="filterP('residential',this)">Residential</button>
+        <button class="fb" onclick="filterP('interiors',this)">Interiors</button>
+        <button class="fb" onclick="filterP('hospitality',this)">Hospitality</button>
+        <button class="fb" onclick="filterP('commercial',this)">Commercial</button>
+      </div>
+    </div>
+    <div class="proj-grid" id="projGrid"></div>
+  </section>
+  <footer><div class="ft"><div><div class="fb-logo"><b>S</b>cripted Aesthetics</div><p class="fb-p">Parametric Design · Turnkey Architecture · Stylised Interiors</p></div><div class="ft-col"><h4>Navigate</h4><ul><li><a href="#" onclick="go('home');return false">Home</a></li><li><a href="#" onclick="go('projects');return false">Projects</a></li><li><a href="#" onclick="go('about');return false">About</a></li><li><a href="#" onclick="go('salab');return false">SA Lab</a></li><li><a href="#" onclick="go('contact');return false">Contact</a></li></ul></div><div class="ft-col"><h4>Contact</h4><ul><li><a href="tel:+918072669376">+91 80726 69376</a></li><li><a href="mailto:projects.sads@gmail.com">projects.sads@gmail.com</a></li></ul></div></div><div class="fb-btm"><div class="fb-copy">© 2024 Scripted Aesthetics.</div><div class="fb-right">Crafted with precision.</div></div></footer>
+</div>
+
+<!-- ═══════════════════ ABOUT ═══════════════════ -->
+<div id="pg-about" class="pg">
+  <div class="ab-hero">
+    <div class="ab-hero-img"></div>
+    <div class="ab-hero-ov"></div>
+    <div class="ab-hero-content">
+      <div class="stag">Our Story</div>
+      <h1 style="font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(3rem,7vw,8rem);line-height:.92;color:var(--white)">Young. Zealous.<br><em style="font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Architectural.</em></h1>
+    </div>
+  </div>
+  <section class="sec rev" style="background:var(--bg2)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center">
+      <div>
+        <div class="stag">Philosophy</div>
+        <h2 class="sh">Design as a<br><em>Living Process</em></h2>
+        <p style="font-size:1rem;color:var(--white2);line-height:1.9;margin-top:1.5rem">Our design process involves engaging new digital tools and computational strategies with relentless exploration along the lines of geometry, material, parametric design and computational architecture.</p>
+        <p style="font-size:1rem;color:var(--white2);line-height:1.9;margin-top:1rem">For us, sustainability is paramount. We integrate eco-friendly practices at every opportunity — designing spaces that are not only beautiful but consciously built.</p>
+        <p style="font-size:1rem;color:var(--white2);line-height:1.9;margin-top:1rem">We believe in open communication and personalized collaboration, designing tailor-made spaces that reflect each client's unique identity and aspirations.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+        <div style="border-top:2.5px solid var(--orange);padding:2.5rem 2rem 2.5rem 0"><div class="ast-n">07+</div><div class="ast-l">Years</div></div>
+        <div style="border-top:2.5px solid var(--gold);padding:2.5rem 0 2.5rem 2rem"><div class="ast-n">40+</div><div class="ast-l">Projects</div></div>
+        <div style="border-top:1px solid var(--borderl);padding:2.5rem 2rem 2.5rem 0"><div class="ast-n">02</div><div class="ast-l">Principals</div></div>
+        <div style="border-top:1px solid var(--borderl);padding:2.5rem 0 2.5rem 2rem"><div class="ast-n">100%</div><div class="ast-l">Satisfaction</div></div>
+      </div>
+    </div>
+  </section>
+  <section class="team-sec">
+    <div class="stag rev">The Minds Behind</div>
+    <h2 class="sh rev">Design <em>Principals</em></h2>
+    <div class="team-grid">
+      <div class="tc rev rd1">
+        <div class="tc-img"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=700&q=80" alt="Ar. Mohammed Ajumaludeen K" loading="lazy"><div class="tc-ov"></div></div>
+        <div class="tc-info">
+          <div class="tc-name">Ar. Mohammed Ajumaludeen K</div>
+          <div class="tc-role">Co-Founder · BIM Architect</div>
+          <p class="tc-bio">An architect and detail-oriented designer with comprehensive understanding of BIM technology. As Operational Head, his pragmatic decision-making guides the team toward successful outcomes while maintaining an unwavering focus on quality, efficiency and sustainability.</p>
+        </div>
+      </div>
+      <div class="tc rev rd2">
+        <div class="tc-img"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=700&q=80" alt="Ar. Uthresh M" loading="lazy"><div class="tc-ov"></div></div>
+        <div class="tc-info">
+          <div class="tc-name">Ar. Uthresh M</div>
+          <div class="tc-role">Co-Founder · Computational Designer</div>
+          <p class="tc-bio">An architect specialised in Computational Design with expertise in parametric tools and a passion for experimentation. He leverages cutting-edge technology to craft dynamic architectural solutions — combining artistic vision with computational prowess and novel fabrication techniques.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="srv-sec" style="background:var(--bg2)">
+    <div class="srv-top rev"><div><div class="stag">Our Approach</div><h2 class="sh">How We <em>Think</em></h2></div><p class="sp">Three pillars define everything we design — precision, sustainability, and bespoke collaboration. Together they form the backbone of every project we deliver.</p></div>
+    <div class="srv-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="sc rev rd1"><div class="sc-icon-wrap"><svg class="sc-icon" viewBox="0 0 40 40" fill="none"><polygon points="20,5 35,34 5,34" stroke="#E8823A" stroke-width="1.8"/><line x1="20" y1="5" x2="20" y2="34" stroke="#E8823A" stroke-width="1" opacity=".5"/></svg></div><div class="sc-title">Parametric Precision</div><p class="sc-desc">Every geometry computed, every form justified. We use advanced parametric tools to find solutions that are structurally elegant and visually extraordinary.</p></div>
+      <div class="sc rev rd2"><div class="sc-icon-wrap"><svg class="sc-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#C9A55A" stroke-width="1.8"/><circle cx="20" cy="20" r="7" stroke="#C9A55A" stroke-width="1.3" opacity=".6"/><circle cx="20" cy="20" r="2.5" fill="#C9A55A"/></svg></div><div class="sc-title">Sustainable Innovation</div><p class="sc-desc">Sustainability is not an afterthought — it is the foundation. We integrate eco-friendly practices and smart materials into every layer of our process.</p></div>
+      <div class="sc rev rd3"><div class="sc-icon-wrap"><svg class="sc-icon" viewBox="0 0 40 40" fill="none"><rect x="5" y="5" width="30" height="30" stroke="#7EE8A2" stroke-width="1.8"/><line x1="5" y1="20" x2="35" y2="20" stroke="#7EE8A2" stroke-width="1" opacity=".5"/><line x1="20" y1="5" x2="20" y2="35" stroke="#7EE8A2" stroke-width="1" opacity=".5"/></svg></div><div class="sc-title">Bespoke Collaboration</div><p class="sc-desc">We believe in open communication and personalized collaboration — designing tailor-made spaces that reflect each client's unique aspirations.</p></div>
+    </div>
+  </section>
+  <footer><div class="ft"><div><div class="fb-logo"><b>S</b>cripted Aesthetics</div><p class="fb-p">Parametric Design · Turnkey Architecture · Stylised Interiors</p></div><div class="ft-col"><h4>Navigate</h4><ul><li><a href="#" onclick="go('home');return false">Home</a></li><li><a href="#" onclick="go('projects');return false">Projects</a></li><li><a href="#" onclick="go('about');return false">About</a></li><li><a href="#" onclick="go('salab');return false">SA Lab</a></li><li><a href="#" onclick="go('contact');return false">Contact</a></li></ul></div><div class="ft-col"><h4>Contact</h4><ul><li><a href="tel:+918072669376">+91 80726 69376</a></li><li><a href="mailto:projects.sads@gmail.com">projects.sads@gmail.com</a></li></ul></div></div><div class="fb-btm"><div class="fb-copy">© 2024 Scripted Aesthetics.</div><div class="fb-right">Crafted with precision.</div></div></footer>
+</div>
+
+<!-- ═══════════════════ SA LAB ═══════════════════ -->
+<div id="pg-salab" class="pg">
+  <div class="lab-hero-band">
+    <div class="stag rev" style="margin-top:3rem">Experimental Studio</div>
+    <h1 class="lab-h1 rev">The<br><em>Laboratory</em></h1>
+    <p class="lab-sub rev">Where we experiment. Where constraints dissolve. Where architecture becomes installation — and installation becomes art.</p>
+  </div>
+  <div class="lab-list">
+    <div class="litem rev">
+      <div class="li-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" alt="Strings" loading="lazy"><div class="li-num">01</div><div class="li-tag-bar"></div></div>
+      <div class="li-txt"><div class="li-cat">Parametric Installation · Pondicherry Highway</div><h3 class="li-title">Strings</h3><p class="li-desc">Designed as an installation pavilion, the parametric structure spreads over the entrance area of Café Albatross. A tensile canopy of MS steel framework with dyed threads and neon strip lights — filtering sunlight into mesmerising shadow play while housing an alfresco dining amphitheatre beneath.</p><div class="li-meta"><div class="lm"><strong>Scope</strong><span>Design · Detailing</span></div><div class="lm"><strong>Type</strong><span>Pavilion Installation</span></div><div class="lm"><strong>Material</strong><span>MS Steel · Threads · Neon</span></div></div></div>
+    </div>
+    <div class="litem rev">
+      <div class="li-img"><img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=900&q=80" alt="Not a Door" loading="lazy"><div class="li-num">02</div><div class="li-tag-bar"></div></div>
+      <div class="li-txt"><div class="li-cat">Detail Design · MKB Nagar, Chennai</div><h3 class="li-title">Not a Door</h3><p class="li-desc">A hidden door embedded seamlessly into wooden flute wall panelling — a discreet portal to the walk-in-wardrobe, hiding in plain sight. Tapping into our childhood desire for a secret place, the value of this intervention lies in extraordinary craftsmanship and precise diagramming of the design.</p><div class="li-meta"><div class="lm"><strong>Scope</strong><span>Design · Fabrication · Execution</span></div><div class="lm"><strong>Type</strong><span>Furniture Detail</span></div></div></div>
+    </div>
+    <div class="litem rev">
+      <div class="li-img"><img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80" alt="Mars 360" loading="lazy"><div class="li-num">03</div><div class="li-tag-bar"></div></div>
+      <div class="li-txt"><div class="li-cat">Renovation · Coimbatore</div><h3 class="li-title">Mars 360</h3><p class="li-desc">Factory vestibule renovation completed with a minimal budget by reusing site materials entirely. Pellet wood panels refurbished from packaging crates, perforated scrap metal sheets from a nearby automotive factory, and a dramatic vertical plant wall as the visual keynote of this ingenious revamp.</p><div class="li-meta"><div class="lm"><strong>Scope</strong><span>Design · PMC</span></div><div class="lm"><strong>Area</strong><span>200 sq. ft</span></div><div class="lm"><strong>Budget</strong><span>Minimal / Reused Materials</span></div></div></div>
+    </div>
+    <div class="litem rev">
+      <div class="li-img"><img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=900&q=80" alt="Stadium" loading="lazy"><div class="li-num">04</div><div class="li-tag-bar"></div></div>
+      <div class="li-txt"><div class="li-cat">Competition Proposal · Hypothetical</div><h3 class="li-title">Stadium</h3><p class="li-desc">One of our first large-scale computational design attempts — the concept takes cues from the form and behaviour of coral reefs. The building's shell acts as a barrier, screening like coral protects fish below. The parametric façade with circular panels responds to the calculated distance of the sun path.</p><div class="li-meta"><div class="lm"><strong>Scope</strong><span>Design · Detailing</span></div><div class="lm"><strong>Type</strong><span>Competition Entry</span></div><div class="lm"><strong>Method</strong><span>CNC Wood · Laser-cut Metal</span></div></div></div>
+    </div>
+    <div class="litem rev">
+      <div class="li-img"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80" alt="Parametric Wave Table" loading="lazy"><div class="li-num">05</div><div class="li-tag-bar"></div></div>
+      <div class="li-txt"><div class="li-cat">Fabrication · Kodaikanal, Tamil Nadu</div><h3 class="li-title">Parametric Wave Table</h3><p class="li-desc">A parametric façade that undulates to mimic the terrain of the mountains — aptly fitting the restaurant's visual landscape. 500 individual CNC-cut rubber wood pieces, driven by parametric coding to minimise material wastage, assembled on site by skilled technicians exactly as the designer envisioned.</p><div class="li-meta"><div class="lm"><strong>Scope</strong><span>Design · Fabrication · Execution</span></div><div class="lm"><strong>Pieces</strong><span>500 CNC-cut</span></div><div class="lm"><strong>Material</strong><span>Rubber Wood · Parametric CNC</span></div></div></div>
+    </div>
+  </div>
+  <footer><div class="ft"><div><div class="fb-logo"><b>S</b>cripted Aesthetics</div><p class="fb-p">Parametric Design · Turnkey Architecture · Stylised Interiors</p></div><div class="ft-col"><h4>Navigate</h4><ul><li><a href="#" onclick="go('home');return false">Home</a></li><li><a href="#" onclick="go('projects');return false">Projects</a></li><li><a href="#" onclick="go('about');return false">About</a></li><li><a href="#" onclick="go('salab');return false">SA Lab</a></li><li><a href="#" onclick="go('contact');return false">Contact</a></li></ul></div><div class="ft-col"><h4>Contact</h4><ul><li><a href="tel:+918072669376">+91 80726 69376</a></li><li><a href="mailto:projects.sads@gmail.com">projects.sads@gmail.com</a></li></ul></div></div><div class="fb-btm"><div class="fb-copy">© 2024 Scripted Aesthetics.</div><div class="fb-right">Crafted with precision.</div></div></footer>
+</div>
+
+<!-- ═══════════════════ CONTACT ═══════════════════ -->
+<div id="pg-contact" class="pg">
+  <div class="ct-hero">
+    <div class="stag rev" style="margin-top:4rem">Start a Conversation</div>
+    <h1 class="ct-h1 rev">Let's Build<br>Something<br><em>Remarkable.</em></h1>
+  </div>
+  <div class="ct-body">
+    <div class="rev">
+      <div class="ct-lbl">Phone</div>
+      <div class="ct-val"><a href="tel:+918072669376">+91 80726 69376</a><br><a href="tel:+917010735936">+91 70107 35936</a></div>
+      <div class="ct-lbl">Projects</div>
+      <div class="ct-val"><a href="mailto:projects.sads@gmail.com">projects.sads@gmail.com</a></div>
+      <div class="ct-lbl">Careers</div>
+      <div class="ct-val"><a href="mailto:career.scriptedaesthetics@gmail.com">career.scriptedaesthetics@gmail.com</a></div>
+      <div class="ct-lbl">Studio Address</div>
+      <div class="ct-val">FF-05, Hameedia Shopping Mall,<br>108–109, Triplicane High Road,<br>Triplicane, Chennai 600005</div>
+      <div style="margin-top:3rem;padding-top:2.5rem;border-top:1px solid var(--borderl)">
+        <div class="ct-lbl">Studio Hours</div>
+        <div class="ct-val">Monday – Saturday · 9 AM – 6 PM IST</div>
+        <div class="ct-lbl" style="margin-top:1.5rem">Follow Us</div>
+        <div class="ct-val"><a href="#">@scriptedaesthetics</a></div>
+      </div>
+    </div>
+    <div class="rev rd2">
+      <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;color:var(--white);margin-bottom:2.5rem;line-height:1.3">Request a <em style="font-style:italic;color:var(--gold)">Consultation</em></div>
+      <div class="form-row">
+        <div class="fg"><label class="fl">First Name *</label><input class="fi" type="text" placeholder="First name" id="f-fname"></div>
+        <div class="fg"><label class="fl">Last Name *</label><input class="fi" type="text" placeholder="Last name" id="f-lname"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="fl">Email Address *</label><input class="fi" type="email" placeholder="your@email.com" id="f-email"></div>
+        <div class="fg"><label class="fl">Phone Number</label><input class="fi" type="tel" placeholder="+91 00000 00000" id="f-phone"></div>
+      </div>
+      <div class="fg"><label class="fl">Project Type *</label>
+        <select class="fi" id="f-type" style="color:var(--white2)">
+          <option value="" style="background:var(--bg2)">Select project type...</option>
+          <option style="background:var(--bg2)">Residential Design</option>
+          <option style="background:var(--bg2)">Commercial / Office Interiors</option>
+          <option style="background:var(--bg2)">Hospitality / Restaurant</option>
+          <option style="background:var(--bg2)">Parametric / Computational Design</option>
+          <option style="background:var(--bg2)">Turnkey Architecture</option>
+          <option style="background:var(--bg2)">Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="fl">Project Location</label><input class="fi" type="text" placeholder="City, State" id="f-loc"></div>
+        <div class="fg"><label class="fl">Approximate Budget</label>
+          <select class="fi" id="f-budget" style="color:var(--white2)">
+            <option value="" style="background:var(--bg2)">Select range...</option>
+            <option style="background:var(--bg2)">Below ₹25 Lakhs</option>
+            <option style="background:var(--bg2)">₹25L – ₹75L</option>
+            <option style="background:var(--bg2)">₹75L – ₹2 Cr</option>
+            <option style="background:var(--bg2)">₹2 Cr – ₹5 Cr</option>
+            <option style="background:var(--bg2)">Above ₹5 Cr</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Tell Us About Your Project *</label><textarea class="fi" placeholder="Describe your project — type, scale, timeline, any specific design preferences or inspirations..." id="f-msg"></textarea></div>
+      <div class="fg"><label class="fl">How Did You Hear About Us?</label>
+        <select class="fi" id="f-ref" style="color:var(--white2)">
+          <option value="" style="background:var(--bg2)">Select...</option>
+          <option style="background:var(--bg2)">Instagram</option>
+          <option style="background:var(--bg2)">Google Search</option>
+          <option style="background:var(--bg2)">Word of Mouth / Referral</option>
+          <option style="background:var(--bg2)">Existing Client</option>
+          <option style="background:var(--bg2)">LinkedIn</option>
+          <option style="background:var(--bg2)">Other</option>
+        </select>
+      </div>
+      <button class="btn-submit" onclick="submitForm()">Submit Consultation Request →</button>
+      <div class="form-ok" id="formOk">Thank you — your consultation request has been received.<br>We'll reach out within 24 hours.</div>
+    </div>
+  </div>
+  <footer><div class="ft"><div><div class="fb-logo"><b>S</b>cripted Aesthetics</div><p class="fb-p">Parametric Design · Turnkey Architecture · Stylised Interiors. Est. 2019, Chennai.</p></div><div class="ft-col"><h4>Navigate</h4><ul><li><a href="#" onclick="go('home');return false">Home</a></li><li><a href="#" onclick="go('projects');return false">Projects</a></li><li><a href="#" onclick="go('about');return false">About</a></li><li><a href="#" onclick="go('salab');return false">SA Lab</a></li><li><a href="#" onclick="go('contact');return false">Contact</a></li></ul></div><div class="ft-col"><h4>Contact</h4><ul><li><a href="tel:+918072669376">+91 80726 69376</a></li><li><a href="mailto:projects.sads@gmail.com">projects.sads@gmail.com</a></li><li><a>Triplicane, Chennai 600005</a></li></ul></div></div><div class="fb-btm"><div class="fb-copy">© 2024 Scripted Aesthetics. All rights reserved.</div><div class="fb-right">Crafted with precision.</div></div></footer>
+</div>
+
+<!-- ═══════ JS ═══════ -->
+<script>
+const PROJECTS=[
+  {id:1,name:'Tiny Urban Residence',cat:'interiors',cl:'Residential Interiors',loc:'MKB Nagar, Chennai',img:'https://images.unsplash.com/photo-1631679706909-1844bbd07221?w=800&q=80'},
+  {id:2,name:'Flavours Multicuisine Restaurant',cat:'hospitality',cl:'Hospitality',loc:'Kodaikanal',img:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'},
+  {id:3,name:'Penthouse',cat:'residential',cl:'Luxury Residence',loc:'Chennai, 28th Floor',img:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80'},
+  {id:4,name:'Yuva Dental Clinic',cat:'commercial',cl:'Corporate Commercial',loc:'Thoraipakkam',img:'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&q=80'},
+  {id:5,name:'Delight Dwell',cat:'interiors',cl:'Residence Interiors',loc:'Trichy, Tamil Nadu',img:'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80'},
+  {id:6,name:'Terrene Residence',cat:'residential',cl:'Residential',loc:'Panaiyur, Tamil Nadu',img:'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80'},
+  {id:7,name:'Sri Ram JB Residency',cat:'hospitality',cl:'Hospitality',loc:'Virudunagar, Tamil Nadu',img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80'},
+  {id:8,name:'House of Shades',cat:'residential',cl:'Luxury Residence',loc:'Maduravoyal, Tamil Nadu',img:'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80'},
+  {id:9,name:'Eclectic Chamber',cat:'interiors',cl:'Residential Interior',loc:'Mylapore, Chennai',img:'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80'},
+  {id:10,name:"Nature's Palette",cat:'residential',cl:'Farmhouse',loc:'ECR, Chennai',img:'https://images.unsplash.com/photo-1472224371017-08207f84aaae?w=800&q=80'},
+  {id:11,name:'Iron Paradise Gym',cat:'commercial',cl:'Commercial Interiors',loc:'Thanjavur, Tamil Nadu',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'},
+];
+
+/* CURSOR */
+const cd=document.getElementById('cd'),cr=document.getElementById('cr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cd.style.left=mx+'px';cd.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(ar)})();
+function ah(el){el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'))}
+document.querySelectorAll('a,button,.pc,.sc,.hwc,.tc,.litem,.arr,.dot').forEach(ah);
+
+/* LOADER */
+window.addEventListener('load',()=>setTimeout(()=>{document.getElementById('ldr').classList.add('out');checkRevs();initStats()},2400));
+
+/* NAV */
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('stuck',window.scrollY>80);checkRevs()});
+
+/* REVEAL */
+function checkRevs(){document.querySelectorAll('.rev:not(.show)').forEach(el=>{if(el.getBoundingClientRect().top<window.innerHeight-50)el.classList.add('show')})}
+setTimeout(checkRevs,400);
+
+/* PAGE NAV */
+function go(page){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+page).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  document.querySelectorAll('[data-pg]').forEach(a=>a.classList.toggle('on',a.dataset.pg===page));
+  const nl=document.getElementById('navLinks');
+  if(nl.classList.contains('open'))toggleMenu();
+  if(page==='projects')renderProjects('all');
+  setTimeout(()=>{checkRevs();initStats()},120);
+}
+
+/* HAMBURGER */
+function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
+
+/* CAROUSEL */
+let curSlide=0,slideTimer;
+function goSlide(n){
+  document.querySelectorAll('.slide').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n));
+  document.getElementById('slides').style.transform=`translateX(-${n*100}%)`;
+  curSlide=n;
+}
+function nextSlide(){goSlide((curSlide+1)%3)}
+function prevSlide(){goSlide((curSlide+2)%3)}
+function startCarousel(){slideTimer=setInterval(nextSlide,5500)}
+setTimeout(startCarousel,2500);
+
+/* ANIMATED COUNTERS */
+let statsInited=false;
+function initStats(){
+  if(statsInited)return;
+  document.querySelectorAll('.stat-num').forEach(el=>{
+    if(el.getBoundingClientRect().top<window.innerHeight){
+      animCount(el);
+      statsInited=true;
+    }
+  });
+}
+function animCount(el){
+  const target=+el.dataset.target,suf=el.dataset.suffix||'';
+  let count=0,dur=1800,step=Math.max(1,Math.floor(target/80));
+  const tick=setInterval(()=>{
+    count=Math.min(count+step,target);
+    el.textContent=count+suf;
+    if(count>=target){clearInterval(tick);el.textContent=target+suf}
+  },dur/80);
+}
+window.addEventListener('scroll',initStats);
+setTimeout(initStats,3000);
+
+/* STAT ITEM SHOW */
+function checkStats(){
+  document.querySelectorAll('.stat-item').forEach(el=>{
+    if(el.getBoundingClientRect().top<window.innerHeight-40)el.classList.add('show');
+  });
+}
+window.addEventListener('scroll',checkStats);
+setTimeout(checkStats,400);
+
+/* PROJECTS RENDER */
+function renderProjects(filter){
+  const list=filter==='all'?PROJECTS:PROJECTS.filter(p=>p.cat===filter);
+  document.getElementById('projGrid').innerHTML=list.map(p=>`
+    <div class="pc">
+      <div class="pc-img">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="pc-ov"><div class="pc-hover"><div class="pc-cat">${p.cl}</div><div class="pc-name">${p.name}</div><div class="pc-loc">${p.loc}</div><div class="pc-arr">View Project →</div></div></div>
+      </div>
+      <div class="pc-bar">
+        <div class="pc-cat">${p.cl}</div>
+        <div class="pc-name" style="font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--white);margin-top:.3rem">${p.name}</div>
+        <div class="pc-loc" style="font-size:.75rem;color:var(--white3);margin-top:.2rem">${p.loc}</div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('#projGrid .pc').forEach(ah);
+}
+function filterP(cat,btn){document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderProjects(cat)}
+
+/* FORM */
+function submitForm(){
+  const fn=document.getElementById('f-fname').value,e=document.getElementById('f-email').value,m=document.getElementById('f-msg').value;
+  if(!fn||!e||!m){alert('Please fill in your name, email and project description.');return}
+  document.getElementById('formOk').style.display='block';
+  ['f-fname','f-lname','f-email','f-phone','f-msg','f-loc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  ['f-type','f-budget','f-ref'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0});
+}
+
+/* MAGNETIC */
+document.querySelectorAll('.btn-grad,.btn-outline,.btn-submit,.nav-btn').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{const r=btn.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;btn.style.transform=`translate(${x*.18}px,${y*.18}px)`});
+  btn.addEventListener('mouseleave',()=>btn.style.transform='');
+});
+</script>
+</body>
+</html>
